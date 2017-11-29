@@ -16,19 +16,15 @@ Plugin 'Valloric/YouCompleteMe'
 " To get plugins from Vim Scripts, you can reference the plugin
 " by name as it appears on the site
 Plugin 'Buffergator'
-
 " Seabird Vim Color plugin
 Plugin 'nightsense/seabird'
-
 " airline plugin
 Plugin 'vim-airline/vim-airline'
 Plugin 'vim-airline/vim-airline-themes'
-
 " autoPairs
 Plugin 'auto-pairs-gentle'
 " to show tablines
 Plugin 'https://github.com/Yggdroot/indentLine'
-
 "ultisnips
 Plugin 'SirVer/ultisnips'
 "the snippets for it
