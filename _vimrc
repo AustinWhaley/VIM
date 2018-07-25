@@ -42,12 +42,23 @@ endif
 setlocal foldmethod=indent
 setlocal nofoldenable
 " Press space in normal mode to toggle
-nnoremap <silent> <Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
+nnoremap <silent> <Space> @=(foldlevel('.')?'zA':"\<Space>")<CR>
 vnoremap <Space> zf
+" Ignore page-up and page-down because the keys are TOO CLOSE
+imap <PageUp> <nop>
+nmap <PageUp> <nop>
+imap <PageDown> <nop>
+nmap <PageDown> <nop>
+" Press F3 to write current time and date under cursor
+imap <F3> <C-R>=strftime('%c')<CR>P
+" Press shift tab to tab back with spaces and let tab work in normal mode
+nmap <Tab> 4i<Space><Esc>
+imap <S-Tab> 4X
+nmap <S-Tab> d4h
+" Press F8 to activate spell checking, F9 to turn it off.
+map <F8> <Esc>:setlocal spell spelllang=en_us<CR>
+map <F9> <Esc>:setlocal nospell<CR>
 
-" Press F7 to activate spell checking, F8 to turn it off.
-map <F7> <Esc>:setlocal spell spelllang=en_us<CR>
-map <F8> <Esc>:setlocal nospell<CR>
 
 " Plugins
 filetype plugin indent on
@@ -61,7 +72,6 @@ call plug#begin('~/vimfiles/plugged')
     Plug 'vim-airline/vim-airline'
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-fugitive'
-    Plug 'w0rp/ale'
     Plug 'nvie/vim-flake8'
     Plug 'townk/vim-autoclose'
 call plug#end()
@@ -97,22 +107,9 @@ highlight BadWhitespace ctermbg=red guibg=darkred
 :au BufRead,BufNewFile *.py,*.pyw,*.c,*.h silent
 match BadWhitespace /\s\+$/
 
-" ALE settings
-" Limit linters used for JavaScript.
-let g:ale_linters = {
-\  'python': ['flake8','pylint']
-\}
-highlight clear ALEErrorSign " otherwise uses error bg color (typically red)
-highlight clear ALEWarningSign " otherwise uses error bg color (typically red)
-let g:ale_sign_error = 'X' " could use emoji
-let g:ale_sign_warning = '?' " could use emoji
-let g:ale_statusline_format = ['X %d', '? %d', '']
-" %linter% is the name of the linter that provided the message
-" %s is the error or warning message
-let g:ale_echo_msg_format = '%linter% says %s'
-" Map keys to navigate between lines with errors and warnings.
-nnoremap <leader>an :ALENextWrap<cr>
-nnoremap <leader>ap :ALEPreviousWrap<cr>
 " Keep function folds persistent in files
 :autocmd BufWinLeave *.* mkview
 :autocmd BufWinEnter *.* silent loadview
+
+" Custom command to open the vimrc in a new buf and move to it
+command EditVim badd $HOME/_vimrc <Bar> bn
