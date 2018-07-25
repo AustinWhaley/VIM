@@ -1,6 +1,5 @@
 set nocompatible	    " Require for Vim coolness
 set nobk			    " Don't create backup files before writing
-set ai				    " Turn on auto indentation
 set si				    " Turn on smart indent
 set ru				    " Turn on the ruler
 set sc				    " Show commands
@@ -30,11 +29,18 @@ let &guicursor = &guicursor . ",a:blinkon0"
 
 " If gvim is running, set a font, otherwise don't
 if has("gui_running")
-  if has("gui_gtk2")
-    set guifont=Anonymice\ Powerline\ Bold:h10
-  elseif has("gui_win32")
-    set guifont=Monoid:h8
-  endif
+    set guioptions=icpM
+    if has('win32') || has('win64')
+        if (v:version == 704 && has("patch393")) || v:version > 704
+            set renderoptions=type:directx,level:0.75,gamma:1.25,contrast:0.25,
+                        \geom:1,renmode:5,taamode:1
+        endif
+    endif
+    if has("gui_gtk2")
+        set guifont=Anonymice\ Powerline\ Bold:h10
+    elseif has("gui_win32")
+        set guifont=Monoid:h8
+    endif
 endif
 
 
@@ -44,13 +50,17 @@ setlocal nofoldenable
 " Press space in normal mode to toggle
 nnoremap <silent> <Space> @=(foldlevel('.')?'zA':"\<Space>")<CR>
 vnoremap <Space> zf
-" Ignore page-up and page-down because the keys are TOO CLOSE
+" Custom command to update the header for a python file every save
+nmap <S-w> gg2jddi#<Tab>Last Change:<Space><F3><CR><Esc>
+" Ignore F1, page-up, and page-down because the keys are ANNOYING
 imap <PageUp> <nop>
 nmap <PageUp> <nop>
 imap <PageDown> <nop>
 nmap <PageDown> <nop>
+imap <F1> <nop>
+nmap <F1> <nop>
 " Press F3 to write current time and date under cursor
-imap <F3> <C-R>=strftime('%c')<CR>P
+imap <F3> <C-R>=strftime('%c')<CR>
 " Press shift tab to tab back with spaces and let tab work in normal mode
 nmap <Tab> 4i<Space><Esc>
 imap <S-Tab> 4X
@@ -74,6 +84,7 @@ call plug#begin('~/vimfiles/plugged')
     Plug 'tpope/vim-fugitive'
     Plug 'nvie/vim-flake8'
     Plug 'townk/vim-autoclose'
+    Plug 'suxpert/vimcaps'
 call plug#end()
 
 " Enable Markdown folding
@@ -85,31 +96,53 @@ set laststatus=2
 " Set system clipboard
 set clipboard=unnamed
 
+" AIRLINE MODS
 " Show word count
 let g:airline#extensions#wordcount#enabled = 1
-let g:airline#extensions#ale#enabled = 1
-let g:airline_left_sep=''
-let g:airline_right_sep=''
-
 " Force Airline to refresh after setup so settings work
 :autocmd!
 :autocmd VimEnter * :AirlineRefresh
-
 set encoding=utf-8
 let g:airline_powerline_fonts = 1
+  if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+  endif
+" Airline symbols
+let g:airline_left_sep = ''
+let g:airline_left_alt_sep = '»'
+let g:airline_right_sep = ''
+let g:airline_right_alt_sep = '«'
+let g:airline_symbols.whitespace = 'ツ'
+let g:airline#extensions#tabline#enabled = 1
+" Show the buffer number
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+" Show only filename
+let g:airline#extensions#tabline#fnamemod = ':t'
+let g:airline_theme='ubaryd'
+
+" Enable the list of buffers
+let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#show_buffers = 1
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = '|'
+" Show capslock status in the statusline
+let g:airline#extensions#capslock#enabled = 1
+
 
 syntax on	    		" Turn on syntax highlighting
 colorscheme desert      " Set colorscheme
 
 " Flagging Unnecessary Whitespace
-"define BadWhitespace before using in a match
+" define BadWhitespace before using in a match
 highlight BadWhitespace ctermbg=red guibg=darkred
 :au BufRead,BufNewFile *.py,*.pyw,*.c,*.h silent
 match BadWhitespace /\s\+$/
 
-" Keep function folds persistent in files
-:autocmd BufWinLeave *.* mkview
-:autocmd BufWinEnter *.* silent loadview
-
 " Custom command to open the vimrc in a new buf and move to it
-command EditVim badd $HOME/_vimrc <Bar> bn
+command! EditVim badd $HOME/_vimrc <Bar> bn
+" Custom command to save even if the caps lock is on
+command! W w
+command! WQ wq
+
+" Spooky Scary Skeleton files for extensions
+au BufNewFile *.py 0r ~/vimfiles/skeletons/skeleton.py | let IndentStyle = "py"
