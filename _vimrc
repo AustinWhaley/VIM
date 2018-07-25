@@ -1,6 +1,7 @@
 set nocompatible	    " Require for Vim coolness
 set nobk			    " Don't create backup files before writing
 set si				    " Turn on smart indent
+set ai                  " Turn on auto indentation
 set ru				    " Turn on the ruler
 set sc				    " Show commands
 set smarttab		    " Turn on smart tabs
@@ -14,6 +15,7 @@ set incsearch			" Turn on incremental searching
 set history=100			" Keep X number of commands in history
 set number			    " Turn on line numbers
 set t_Co=256			" Enable 256 colors
+set so=10               " When 10 lines from top or bottom move screen too
 set rnu                 " Set relative line numbers
 
 " Allow backspace in insert mode
@@ -65,10 +67,13 @@ imap <F3> <C-R>=strftime('%c')<CR>
 nmap <Tab> 4i<Space><Esc>
 imap <S-Tab> 4X
 nmap <S-Tab> d4h
+" Press Ctl-Tab to move through buffers in any mode
+imap <C-Tab> <Esc>:bn<CR>
+vmap <C-Tab> <Esc>:bn<CR>
+nmap <C-Tab> :bn<CR>
 " Press F8 to activate spell checking, F9 to turn it off.
 map <F8> <Esc>:setlocal spell spelllang=en_us<CR>
 map <F9> <Esc>:setlocal nospell<CR>
-
 
 " Plugins
 filetype plugin indent on
@@ -80,10 +85,10 @@ call plug#begin('~/vimfiles/plugged')
     Plug 'nelstrom/vim-markdown-folding'
     Plug 'tpope/vim-markdown'
     Plug 'vim-airline/vim-airline'
-    Plug 'tpope/vim-surround'
     Plug 'tpope/vim-fugitive'
     Plug 'nvie/vim-flake8'
     Plug 'townk/vim-autoclose'
+    Plug 'tpope/vim-capslock'
     Plug 'suxpert/vimcaps'
 call plug#end()
 
@@ -112,13 +117,16 @@ let g:airline_left_sep = ''
 let g:airline_left_alt_sep = '»'
 let g:airline_right_sep = ''
 let g:airline_right_alt_sep = '«'
-let g:airline_symbols.whitespace = 'ツ'
+let g:airline_symbols.linenr = '¦¦¦¦¦'
 let g:airline#extensions#tabline#enabled = 1
 " Show the buffer number
 let g:airline#extensions#tabline#buffer_idx_mode = 1
 " Show only filename
 let g:airline#extensions#tabline#fnamemod = ':t'
+" Set the theme of airline
 let g:airline_theme='ubaryd'
+" Remove the percent part of the status line
+let g:airline_section_z = airline#section#create(['linenr', ':%3v'])
 
 " Enable the list of buffers
 let g:airline#extensions#tabline#enabled = 1
@@ -140,9 +148,12 @@ match BadWhitespace /\s\+$/
 
 " Custom command to open the vimrc in a new buf and move to it
 command! EditVim badd $HOME/_vimrc <Bar> bn
+" Custom command to source your vimrc
+command! SrcVim source $HOME/_vimrc
 " Custom command to save even if the caps lock is on
 command! W w
 command! WQ wq
+command! Q q
 
 " Spooky Scary Skeleton files for extensions
 au BufNewFile *.py 0r ~/vimfiles/skeletons/skeleton.py | let IndentStyle = "py"
