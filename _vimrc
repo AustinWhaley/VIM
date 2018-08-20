@@ -45,6 +45,8 @@ if has("gui_running")
     endif
 endif
 
+" Setting leader character to forward slash explictly
+let mapleader = '\'
 
 " Enable code folding by indent for python and disable folding by default
 setlocal foldmethod=indent
@@ -53,30 +55,44 @@ setlocal nofoldenable
 nnoremap <silent> <Space> @=(foldlevel('.')?'zA':"\<Space>")<CR>
 vnoremap <Space> zf
 " Custom command to update the header for a python file every save
-nmap <S-w> gg2jddi#<Tab>Last Change:<Space><F3><CR><Esc>
+nmap <S-w> gg2jddO<Esc>i#    Last Change:<Space><F3><CR><Esc>
 " Ignore F1, page-up, and page-down because the keys are ANNOYING
-imap <PageUp> <nop>
-nmap <PageUp> <nop>
-imap <PageDown> <nop>
-nmap <PageDown> <nop>
-imap <F1> <nop>
-nmap <F1> <nop>
+inoremap <PageUp>   <NOP>
+noremap  <PageUp>   <NOP>
+inoremap <PageDown> <NOP>
+noremap  <PageDown> <NOP>
+inoremap <F1>       <NOP>
+noremap  <F1>       <NOP>
 " Press F3 to write current time and date under cursor
 imap <F3> <C-R>=strftime('%c')<CR>
 " Press shift tab to tab back with spaces and let tab work in normal mode
-nmap <Tab> 4i<Space><Esc>
-imap <S-Tab> 4X
-nmap <S-Tab> d4h
+nmap <Tab> I<Space><Space><Space><Space><Esc>l
+imap <S-Tab> <Esc>^4X
+nmap <S-Tab> <Esc>^4X
+" Control-s also will save the file and update the python header
+nmap <C-s> zRgg2jddOLast Change:<Space><C-R>=strftime('%c')<CR><Esc>:w<CR>
 " Press Ctl-Tab to move through buffers in any mode
-imap <C-Tab> <Esc>:bn<CR>
-vmap <C-Tab> <Esc>:bn<CR>
-nmap <C-Tab> :bn<CR>
+imap <C-Tab> <Esc>:w<CR>:bn<CR>
+vmap <C-Tab> <Esc>:w<CR>:bn<CR>
+nmap <C-Tab> :w<CR>:bn<CR>
+" Press Ctl-F to find the function definition in python
+nmap <C-F> yw:exe '/def ' . @0 . '('<CR>
+
 " Press F8 to activate spell checking, F9 to turn it off.
 map <F8> <Esc>:setlocal spell spelllang=en_us<CR>
 map <F9> <Esc>:setlocal nospell<CR>
+" Moving between split panes with CTL-Direction
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
+" Remapping the NERDCommenter toggle comment on Ctl-Space
+nmap <C-Space> <Leader>c<Space>
+vmap <C-Space> <C-0><Leader>c<Space><Esc>v
 
 " Plugins
 filetype plugin indent on
+filetype plugin on
 
 " Install Plugins - To update use the command :PlugInstall!
 call plug#begin('~/vimfiles/plugged')
@@ -90,6 +106,7 @@ call plug#begin('~/vimfiles/plugged')
     Plug 'townk/vim-autoclose'
     Plug 'tpope/vim-capslock'
     Plug 'suxpert/vimcaps'
+    Plug 'scrooloose/nerdcommenter'
 call plug#end()
 
 " Enable Markdown folding
@@ -150,10 +167,27 @@ match BadWhitespace /\s\+$/
 command! EditVim badd $HOME/_vimrc <Bar> bn
 " Custom command to source your vimrc
 command! SrcVim source $HOME/_vimrc
-" Custom command to save even if the caps lock is on
+" Custom command to save the header for python file even if the caps lock is on
 command! W w
-command! WQ wq
 command! Q q
 
 " Spooky Scary Skeleton files for extensions
 au BufNewFile *.py 0r ~/vimfiles/skeletons/skeleton.py | let IndentStyle = "py"
+
+" Nerd Commenter Stuff
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+" Set a language to use its alternate delimiters by default
+let g:NERDAltDelims_java = 1
+" Add your own custom formats or override the defaults
+let g:NERDCustomDelimiters = { 'c': { 'left': '/**','right': '*/' } }
+" Allow commenting and inverting empty lines (useful when commenting a region)
+let g:NERDCommentEmptyLines = 1
+" Enable trimming of trailing whitespace when uncommenting
+let g:NERDTrimTrailingWhitespace = 1
+" Enable NERDCommenterToggle to check all selected lines is commented or not
+let g:NERDToggleCheckAllLines = 1
